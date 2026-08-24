@@ -1,17 +1,98 @@
 /* ==========================================================================
-   أسامة للبرمجيات — ملف التفاعل
+   الأصيل للبرمجيات — ملف التفاعل
    كل قسم هنا مستقل عن غيره، فتستطيع تعديله أو حذفه بأمان.
    ========================================================================== */
 
 /* ===== الإعدادات — عدّل هذه القيم فقط ===== */
 const CONFIG = {
   // رقم الواتساب بصيغة دولية: رمز الدولة + الرقم، بدون + وبدون صفر أول وبدون مسافات
-  whatsappNumber: '966500000000',
+  whatsappNumber: '962772499064',
   // الرسالة التي تظهر عند الضغط على زر واتساب العائم
-  whatsappGreeting: 'مرحبًا أسامة للبرمجيات 👋 أرغب في الاستفسار عن خدماتكم.'
+  whatsappGreeting: 'مرحبًا، أرغب في الاستفسار عن خدمات الأصيل للبرمجيات 👋'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  /* ------------------------------------------------------------------
+     0) مؤشر الفأرة المخصص (نقطة + حلقة تتبعها بتأخير)
+        يعمل فقط على الأجهزة التي فيها فأرة حقيقية — لا على الجوال واللمس.
+     ------------------------------------------------------------------ */
+  const hasMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (hasMouse && !calmMotion) {
+    const dot  = document.createElement('div');
+    const ring = document.createElement('div');
+    dot.className = 'cursor-dot';
+    ring.className = 'cursor-ring';
+    document.body.append(dot, ring);
+
+    /* ملاحظة مهمة: لا نُخفي مؤشر الفأرة الأصلي إلا بعد أن يظهر المؤشر المخصص
+       فعلًا ويستقر في مكانه. لو أخفيناه من البداية وحدث أي خلل، سيبقى الزائر
+       بلا أي مؤشر على الإطلاق — وهذا أسوأ من عدم وجود مؤشر مخصص أصلًا. */
+    let cursorReady = false;
+
+    let mouseX = 0, mouseY = 0;   // مكان الفأرة الحقيقي
+    let ringX  = 0, ringY  = 0;   // مكان الحلقة (يلحق بالفأرة تدريجيًا)
+
+    /* معايرة نقطة الصفر.
+       في الصفحة العربية يقع شريط التمرير على اليسار، فيصبح موضع
+       "top:0 left:0" مزاحًا عن الصفر بمقدار عرض الشريط. بدل تخمين هذا
+       المقدار نقيسه مرة واحدة من المتصفح نفسه، فيضبط الكود نفسه على أي جهاز. */
+    let originX = 0, originY = 0;
+
+    const calibrate = () => {
+      dot.style.transform = 'translate3d(0px,0px,0)';
+      const box = dot.getBoundingClientRect();
+      originX = box.left;
+      originY = box.top;
+    };
+    calibrate();
+    window.addEventListener('resize', calibrate);
+
+    /* نضع العنصر عند إحداثيات الفأرة ثم نُرجعه نصف حجمه بـ translate(-50%,-50%)،
+       فيبقى مركزه على الفأرة تمامًا مهما تغيّر حجمه (كتضخّم الحلقة فوق الأزرار). */
+    const placeAt = (el, x, y) =>
+      el.style.transform = 'translate3d(' + (x - originX) + 'px,' + (y - originY) + 'px,0) translate(-50%,-50%)';
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      placeAt(dot, mouseX, mouseY);
+      dot.classList.add('is-on');
+      ring.classList.add('is-on');
+
+      // تحقّق مرة واحدة أن النقطة رُسمت فعلًا تحت الفأرة، ثم أخفِ المؤشر الأصلي
+      if (!cursorReady) {
+        const box = dot.getBoundingClientRect();
+        const onTarget = Math.abs(box.left + box.width / 2 - mouseX) < 6 &&
+                         Math.abs(box.top + box.height / 2 - mouseY) < 6;
+        if (onTarget) {
+          document.body.classList.add('has-custom-cursor');
+          cursorReady = true;
+        }
+      }
+    });
+
+    // الحلقة تتحرك 15% من المسافة في كل إطار، فتبدو وكأنها تسبح خلف الفأرة
+    const followMouse = () => {
+      ringX += (mouseX - ringX) * 0.15;
+      ringY += (mouseY - ringY) * 0.15;
+      placeAt(ring, ringX, ringY);
+      requestAnimationFrame(followMouse);
+    };
+    followMouse();
+
+    // تكبُر الحلقة فوق أي عنصر قابل للضغط
+    const clickable = 'a, button, input, select, textarea, .showcase__dot, .faq-q';
+    document.addEventListener('mouseover', (e) => ring.classList.toggle('is-hot', !!e.target.closest(clickable)));
+
+    // أخفِ المؤشر عند خروج الفأرة من النافذة
+    document.addEventListener('mouseleave', () => {
+      dot.classList.remove('is-on');
+      ring.classList.remove('is-on');
+    });
+  }
 
   /* ------------------------------------------------------------------
      1) الترويسة: ظل عند التمرير
@@ -129,7 +210,124 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ------------------------------------------------------------------
-     6) تصفية معرض الأعمال حسب التصنيف
+     6) عارض شرائح الأعمال في الواجهة الرئيسية
+     ------------------------------------------------------------------ */
+  const showcase = document.getElementById('showcase');
+
+  if (showcase) {
+    const slides = [...showcase.querySelectorAll('.slide')];
+    const dots   = [...showcase.querySelectorAll('.showcase__dot')];
+    const DELAY  = 4500;               // مدة بقاء كل صورة بالميلي ثانية
+    let index = 0, timer = null;
+
+    // هل طلب المستخدم تقليل الحركة من إعدادات جهازه؟ عندها لا نشغّل التبديل التلقائي
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* الانتقال الانزلاقي:
+       dir = 1  → للأمام: الشريحة الجديدة تدخل من اليسار والقديمة تخرج يمينًا
+       dir = -1 → للخلف : العكس تمامًا                                        */
+    const show = (i, dir = 1) => {
+      const next = (i + slides.length) % slides.length;
+      if (next === index && slides[index].classList.contains('is-active')) return;
+
+      const current = slides[index];
+      const incoming = slides[next];
+      loadImage(next);                 // تأكّد أن صورة الشريحة القادمة جاهزة
+
+      // ضع الشريحة القادمة خارج الإطار بلا حركة مرئية
+      incoming.classList.add('no-anim');
+      incoming.style.transform = 'translateX(' + (dir === 1 ? -100 : 100) + '%)';
+      incoming.style.opacity = '0';
+      void incoming.offsetWidth;       // يجبر المتصفح على تطبيق الموضع فورًا
+      incoming.classList.remove('no-anim');
+
+      // حرّك الاثنتين في نفس اللحظة
+      incoming.classList.add('is-active');
+      incoming.style.transform = 'translateX(0)';
+      incoming.style.opacity = '1';
+
+      current.classList.remove('is-active');
+      current.style.transform = 'translateX(' + (dir === 1 ? 100 : -100) + '%)';
+      current.style.opacity = '0';
+
+      index = next;
+      dots.forEach((d, n) => d.classList.toggle('is-active', n === index));
+      loadImage(index + 1);            // جهّز التي بعدها مسبقًا
+    };
+
+    // تحميل تدريجي: الصورة الأولى فقط تُحمَّل مع الصفحة، والباقي عند الحاجة.
+    // السبب: الصور كبيرة، وتحميلها كلها دفعة واحدة يُبطئ فتح الموقع.
+    const loadImage = (i) => {
+      const img = slides[i % slides.length].querySelector('img[data-src]');
+      if (!img) return;
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    };
+
+    const play  = () => { if (!calm) timer = setInterval(() => show(index + 1), DELAY); };
+    const pause = () => { clearInterval(timer); timer = null; };
+
+    dots.forEach(dot => dot.addEventListener('click', () => {
+      const target = Number(dot.dataset.index);
+      pause();
+      show(target, target > index ? 1 : -1);
+      play();
+    }));
+
+    /* التبديل بالتمرير: كلما نزل الزائر للأسفل مسافة معيّنة تنزلق الشريحة
+       التالية، وإذا صعد للأعلى ترجع السابقة. يعمل فقط والعارض ظاهر أمامه. */
+    let lastScrollY = window.scrollY;
+    let scrolled = 0;
+    const STEP = 150;                  // كم بكسل تمرير تحتاج لتبديل شريحة
+
+    window.addEventListener('scroll', () => {
+      const move = window.scrollY - lastScrollY;
+      lastScrollY = window.scrollY;
+
+      const box = showcase.getBoundingClientRect();
+      const isVisible = box.bottom > 60 && box.top < window.innerHeight - 60;
+      if (!isVisible) { scrolled = 0; return; }
+
+      scrolled += move;
+      if (Math.abs(scrolled) < STEP) return;
+
+      const dir = scrolled > 0 ? 1 : -1;   // موجب = ينزل للأسفل
+      scrolled = 0;
+      pause();                             // أوقف المؤقّت حتى لا يتعارض مع التمرير
+      show(index + dir, dir);
+      play();                              // ثم أعد تشغيله من جديد
+    }, { passive: true });
+
+    // أوقف التبديل عند مرور الفأرة أو التركيز بلوحة المفاتيح، وعند مغادرة التبويب
+    showcase.addEventListener('mouseenter', pause);
+    showcase.addEventListener('mouseleave', play);
+    showcase.addEventListener('focusin', pause);
+    showcase.addEventListener('focusout', play);
+    document.addEventListener('visibilitychange', () => document.hidden ? pause() : play());
+
+    // حمّل باقي الصور بهدوء بعد أن تكتمل الصفحة
+    window.addEventListener('load', () => slides.forEach((_, i) => setTimeout(() => loadImage(i), i * 400)));
+
+    play();
+  }
+
+  /* ------------------------------------------------------------------
+     7) صور معرض الأعمال: احذف الصورة إذا لم يوجد ملفها
+        الفائدة: يظهر الرسم التوضيحي مكانها بدل أيقونة الصورة المكسورة،
+        فيبقى الموقع مرتبًا قبل أن تضع صورك الحقيقية في مجلد assets/works.
+     ------------------------------------------------------------------ */
+  document.querySelectorAll('.work__thumb img').forEach(img => {
+    // الحالة الأولى: المتصفح حاول التحميل وفشل قبل تشغيل هذا الكود
+    if (img.complete && img.naturalWidth === 0) {
+      img.remove();
+      return;
+    }
+    // الحالة الثانية: الملف ما زال قيد التحميل — ننتظر نتيجة المحاولة
+    img.addEventListener('error', () => img.remove());
+  });
+
+  /* ------------------------------------------------------------------
+     8) تصفية معرض الأعمال حسب التصنيف
      ------------------------------------------------------------------ */
   const filterBtns = document.querySelectorAll('.filter-btn');
   const works = document.querySelectorAll('.work');
@@ -148,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ------------------------------------------------------------------
-     7) الأسئلة الشائعة (فتح وإغلاق)
+     9) الأسئلة الشائعة (فتح وإغلاق)
      ------------------------------------------------------------------ */
   const faqItems = document.querySelectorAll('.faq-item');
 
@@ -181,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ------------------------------------------------------------------
-     8) أزرار الباقات: تختار الباقة تلقائيًا في النموذج
+     10) أزرار الباقات: تختار الباقة تلقائيًا في النموذج
      ------------------------------------------------------------------ */
   document.querySelectorAll('[data-plan]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -193,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ------------------------------------------------------------------
-     9) نموذج التواصل: تحقق من البيانات ثم فتح واتساب
+     11) نموذج التواصل: تحقق من البيانات ثم فتح واتساب
      ------------------------------------------------------------------ */
   const form = document.getElementById('contactForm');
   const successBox = document.getElementById('formSuccess');
@@ -210,7 +408,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const phone   = form.phone;
     const email   = form.email;
     const service = form.service;
-    const budget  = form.budget;
+    // حقل اختياري: قد يكون محذوفًا من الصفحة، لذلك نتحقق من وجوده أولًا
+    const budget  = form.budget || null;
     const details = form.details;
 
     // قواعد بسيطة وواضحة للتحقق
@@ -236,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'الهاتف: ' + phone.value.trim(),
       email.value.trim() ? 'البريد: ' + email.value.trim() : null,
       'الخدمة المطلوبة: ' + service.value,
-      budget.value ? 'الميزانية: ' + budget.value : null,
+      budget && budget.value ? 'الميزانية: ' + budget.value : null,
       '',
       'تفاصيل المشروع:',
       details.value.trim()
@@ -256,19 +455,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ------------------------------------------------------------------
-     10) زر واتساب العائم
+     12) زر واتساب العائم
      ------------------------------------------------------------------ */
   document.getElementById('whatsappFloat').href =
     'https://wa.me/' + CONFIG.whatsappNumber + '?text=' + encodeURIComponent(CONFIG.whatsappGreeting);
 
   /* ------------------------------------------------------------------
-     11) زر العودة إلى الأعلى
+     13) زر العودة إلى الأعلى
      ------------------------------------------------------------------ */
   const toTop = document.getElementById('toTop');
   toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   /* ------------------------------------------------------------------
-     12) سنة حقوق النشر تتحدث تلقائيًا
+     14) سنة حقوق النشر تتحدث تلقائيًا
      ------------------------------------------------------------------ */
   document.getElementById('year').textContent = new Date().getFullYear();
 
