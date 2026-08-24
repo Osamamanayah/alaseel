@@ -278,7 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
        التالية، وإذا صعد للأعلى ترجع السابقة. يعمل فقط والعارض ظاهر أمامه. */
     let lastScrollY = window.scrollY;
     let scrolled = 0;
-    const STEP = 150;                  // كم بكسل تمرير تحتاج لتبديل شريحة
+    /* كم بكسل تمرير تحتاج لتبديل شريحة.
+       على الجوال نضاعف المسافة تقريبًا: شاشته أقصر، والتمرير باللمس له
+       اندفاع (momentum) يقطع مسافة كبيرة بلمسة واحدة — فلو تركناها 150
+       لتقافزت الصور بسرعة مزعجة. */
+    const STEP = window.matchMedia('(max-width: 860px)').matches ? 280 : 150;
 
     window.addEventListener('scroll', () => {
       const move = window.scrollY - lastScrollY;

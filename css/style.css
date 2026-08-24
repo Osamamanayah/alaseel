@@ -762,6 +762,83 @@ body::before {
   .to-top { inset-block-end: 18px; inset-inline-end: 18px; }
 }
 
+/* ==========================================================================
+   6) تحسينات الهواتف — أندرويد وآيفون
+   ========================================================================== */
+
+/* --- 1) منع التمرير الأفقي ---
+   الهالة الضوئية داخل كل قسم عرضها 520px، وكانت تتجاوز حافة الشاشة على الجوال
+   فتُنشئ تمريرًا أفقيًا مزعجًا. نجعل القسم يقصّ ما يخرج عنه. */
+.section { overflow: hidden; }
+
+/* --- 2) منع آيفون من تكبير الصفحة عند الكتابة ---
+   سفاري يُكبّر الصفحة تلقائيًا إذا كان خط الحقل أصغر من 16px، فتضطر
+   لتصغيرها يدويًا بعد كل حقل. تثبيت 16px يمنع ذلك نهائيًا. */
+.field input, .field select, .field textarea { font-size: 16px; }
+
+/* --- 3) إزالة وميض اللمس الأزرق في أندرويد، مع إبقاء أثر واضح للضغط --- */
+a, button, .showcase__dot, .faq-q {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;               /* يلغي تأخير 300 ملّي ثانية القديم */
+}
+@media (hover: none) {
+  .btn:active     { transform: scale(.97); }
+  .card:active    { border-color: rgba(34,211,238,.45); }
+  .info-card:active, .faq-q:active { opacity: .75; }
+}
+
+/* --- 4) احترام المساحات المحجوزة في آيفون (النتوء وشريط الصفحة الرئيسية) --- */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .whatsapp-float { margin-block-end: env(safe-area-inset-bottom); }
+  .to-top         { margin-block-end: env(safe-area-inset-bottom); }
+  .footer__bottom { padding-block-end: calc(22px + env(safe-area-inset-bottom)); }
+}
+
+/* --- 5) قائمة الجوال بارتفاع الشاشة الحقيقي ---
+   100vh في آيفون يحسب الشاشة وكأن شريط المتصفح مخفي، فيُقصّ آخر القائمة.
+   الوحدة dvh تعطي الارتفاع المرئي فعلًا، ونُبقي vh كبديل للمتصفحات القديمة. */
+@media (max-width: 860px) {
+  .nav.is-open { max-height: calc(100vh - var(--header-h)); }
+  .nav.is-open { max-height: calc(100dvh - var(--header-h)); }
+}
+
+/* --- 6) تكبير أهداف اللمس ---
+   الإصبع يحتاج مساحة لا تقل عن 40px، وهذه العناصر كانت أصغر من ذلك. */
+
+/* نقاط عارض الشرائح: نُبقي شكلها الصغير ونوسّع منطقة اللمس بطبقة خفية حولها */
+.showcase__dot { position: relative; }
+.showcase__dot::after {
+  content: ''; position: absolute; inset: -16px -7px;
+}
+
+@media (max-width: 860px) {
+  .showcase__dots { gap: 14px; }
+  .service__link  { min-height: 44px; }
+  .footer__links a { display: inline-block; padding-block: 7px; }
+  .info-card a     { padding-block: 4px; }
+}
+
+/* --- 7) ترويسة أقصر على الجوال لتوفير مساحة للمحتوى --- */
+@media (max-width: 680px) {
+  :root { --header-h: 72px; }
+  .logo__mark { width: 52px; height: 52px; }
+  .logo__name { font-size: 1.02rem; }
+  .logo__sub  { font-size: .68rem; }
+}
+
+/* --- 8) الشاشات الضيقة جدًا (320px مثل iPhone SE القديم) --- */
+@media (max-width: 360px) {
+  .container    { width: calc(100% - 28px); }
+  .hero__stats  { gap: 18px 22px; }
+  .stat__num    { font-size: 1.5rem; }
+  .btn          { padding: 13px 20px; font-size: .95rem; }
+  .whatsapp-float { padding: 12px; }
+}
+
+/* --- 9) الصور لا تتمدد خارج حاويتها مهما كان مقاسها --- */
+img, svg { height: auto; max-width: 100%; }
+.slide img, .work__thumb img, .logo__mark img, .qr-card__code img { height: 100%; }
+
 /* احترام تفضيل تقليل الحركة */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
