@@ -1,0 +1,734 @@
+/* ==========================================================================
+   الأصيل للبرمجيات — ملف المواءمة العربية لقالب Editorial
+
+   ⚠️ قاعدة هذا الملف: لا يغيّر لونًا واحدًا من ألوان القالب.
+   قالب Editorial يُستخدم كما هو: خلفية بيضاء، عناوين رمادية غامقة #3d4449،
+   نص رمادي #7f888f، ولون مميّز أحمر مرجاني #f56a6a. كل ما هنا هو:
+
+     1) إضافة خط Cairo (خطوط القالب لا تحتوي حروفًا عربية إطلاقًا)
+     2) قلب الاتجاه من اليسار إلى اليمين
+     3) تنسيق المكوّنات الأربعة التي لا يملكها القالب أصلًا:
+        عارض الشرائح، الأرقام السريعة، الأسئلة الشائعة، الأزرار العائمة
+        — وكلها مرسومة بألوان القالب نفسها، بلا لون جديد.
+
+   الألوان المستخدمة هنا مأخوذة حرفيًا من assets/css/editorial.css:
+     #f56a6a  اللون المميّز          #3d4449  العناوين
+     #7f888f  النص العادي            #9fa3a6  نص باهت
+     #ffffff  الخلفية                #f5f6f7  خلفية العمود الجانبي
+     rgba(210, 215, 217, 0.75)      لون الحدود والفواصل
+   ========================================================================== */
+
+/* ==========================================================================
+   1) الخط العربي
+
+   خطا القالب (Open Sans و Roboto Slab) لا يحتويان على حروف عربية، فيلجأ
+   المتصفح إلى خط النظام الافتراضي وتظهر العربية رديئة. نضع Cairo أولًا،
+   فتُرسم العربية به، ويبقى ما تبقّى (الأرقام والبريد) بخطوط القالب.
+   ========================================================================== */
+body, input, select, textarea {
+  font-family: 'Cairo', 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.button, input[type="submit"], input[type="reset"], input[type="button"],
+#menu ul, #header .logo, .box .plan__ribbon {
+  font-family: 'Cairo', 'Roboto Slab', serif;
+}
+
+/* القالب يباعد بين الحروف ويحوّلها إلى كبيرة — وكلاهما يشوّه العربية:
+   المباعدة تفكّ اتصال الحروف، والتحويل لا معنى له في العربية أصلًا. */
+h1, h2, h3, h4, h5, h6,
+#menu ul, #header .logo,
+.button, input[type="submit"], input[type="reset"], input[type="button"],
+table thead th, .plan__ribbon {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* القالب يزيح النص بمقدار المباعدة الملغاة، فنعيد ضبط الإزاحة */
+h1, h2, h3, h4, h5, h6 { margin-right: 0; }
+
+/* ==========================================================================
+   2) قلب اتجاه العمود الجانبي إلى اليمين
+
+   القالب يطوي العمود بـ margin-left، وهي خاصية "يسارية" ثابتة لا تنقلب
+   تلقائيًا مع dir="rtl". نلغيها ونستبدلها بـ margin-right.
+   ========================================================================== */
+#sidebar {
+  -moz-transition:    margin-right 0.5s ease, box-shadow 0.5s ease;
+  -webkit-transition: margin-right 0.5s ease, box-shadow 0.5s ease;
+  -ms-transition:     margin-right 0.5s ease, box-shadow 0.5s ease;
+  transition:         margin-right 0.5s ease, box-shadow 0.5s ease;
+}
+
+#sidebar.inactive {
+  margin-left: 0;
+  margin-right: -26em;
+}
+
+/* زر الطيّ (الثلاث شرطات) ينتقل من يسار العمود إلى يمينه */
+#sidebar .toggle {
+  left: auto;
+  right: 26em;
+  -moz-transition:    right 0.5s ease;
+  -webkit-transition: right 0.5s ease;
+  -ms-transition:     right 0.5s ease;
+  transition:         right 0.5s ease;
+}
+
+/* سهم القائمة المنسدلة: من اليمين إلى اليسار */
+#menu ul a.opener:before,
+#menu ul span.opener:before {
+  right: auto;
+  left: 0;
+}
+
+/* إزاحة القائمة الفرعية: من اليسار إلى اليمين */
+#menu > ul > li > ul {
+  padding-left: 0;
+  padding-right: 1em;
+}
+
+/* أيقونات قائمة التواصل: من اليسار إلى اليمين */
+ul.contact li {
+  padding: 1.5em 3em 0 0;
+}
+ul.contact li:before {
+  left: auto;
+  right: 0;
+}
+
+/* الخلفية البديلة داخل العمود الجانبي (قسم الشعار) */
+#sidebar > .inner > .alt {
+  margin-left: 0;
+  margin-right: -2.22222em;
+}
+
+/* حقل البحث في القالب يضع أيقونته على اليمين */
+#search form:before { right: auto; left: 0; }
+#search form input[type="text"] { padding-right: 0; padding-left: 2.75em; }
+
+/* --------------------------------------------------------------------------
+   قلب المكوّنات ذات الهوامش الفيزيائية
+
+   ملاحظة: نظام الشبكة (.row و .col-*) لا يحتاج قلبًا. القالب يضع حشوة
+   يسارية على كل عمود وهامشًا سالبًا على الصف يلغي الحشوة الزائدة — وهذا
+   يعطي نفس النتيجة المتناظرة في الاتجاهين. لذلك تركناه كما هو.
+   -------------------------------------------------------------------------- */
+
+/* القوائم النقطية والمرقّمة */
+ul  { padding-left: 0; padding-right: 1em; }
+ul li { padding-left: 0; padding-right: 0.5em; }
+ul.alt li { padding-right: 0; }
+ol  { padding-left: 0; padding-right: 1.25em; }
+ol li { padding-left: 0; padding-right: 0.25em; }
+ul.actions, ul.icons, ul.contact { padding-right: 0; }
+
+/* قائمة الأزرار */
+ul.actions { margin-left: 0; margin-right: -1em; }
+ul.actions li { padding: 0 1em 0 0; }
+ul.actions.special { margin-right: 0; }
+ul.actions.special li:first-child { padding-right: 0; }
+ul.actions.stacked { margin-right: 0; }
+ul.actions.stacked li { padding-right: 0; }
+
+/* أيقونات الترويسة */
+ul.icons li { padding: 0 0 0 1em; }
+ul.icons li:last-child { padding-right: 0; padding-left: 0; }
+
+/* الأيقونة داخل الزر */
+.button.icon:before, input[type="submit"].icon:before { margin-right: 0; margin-left: 0.5em; }
+
+/* الاقتباس */
+blockquote {
+  border-left: 0;
+  border-right: solid 3px rgba(210, 215, 217, 0.75);
+  padding: 0.5em 2em 0.5em 0;
+}
+
+/* الصور الطافية */
+.image.left  { float: right; padding: 0 0 1em 1.5em; }
+.image.right { float: left;  padding: 0 1.5em 1em 0; }
+
+/* شبكة الخدمات .features — القالب يبني تباعدها بهوامش يسارية.
+   الأصل: الصف يزيح نفسه -3em يسارًا، وكل بطاقة هامشها الأيسر 3em،
+   ثم تُعدَّل هوامش الفردية والزوجية بـ 1.5em ليتساوى المجموع مع عرض الصف.
+   هنا نعكس كل يسار إلى يمين وبالعكس — بنفس المقادير تمامًا. */
+.features { margin: 0 -3em 2em 0; }
+.features article { margin: 0 3em 3em 0; }
+.features article:nth-child(2n - 1) { margin-left: 1.5em; }
+.features article:nth-child(2n)     { margin-right: 1.5em; }
+.features article .icon { margin: 0 0 0 2em; }
+
+@media screen and (max-width: 980px) {
+  .features { margin: 0 0 2em 0; }
+  .features article {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* الجداول */
+table th, table td { text-align: right; }
+
+/* ==========================================================================
+   3) الشعار في العمود الجانبي وفي الترويسة
+   ========================================================================== */
+#sidebar .sidebar-brand { padding: 2.22222em; }
+#sidebar .sidebar-brand .logo {
+  border-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  color: #3d4449;
+}
+/* الشعار خط عربي منسوخ، فيحتاج مساحة أكبر من علامة مجرّدة ليُقرأ */
+#sidebar .sidebar-brand .logo img { width: 82px; height: auto; flex: none; }
+#sidebar .sidebar-brand .logo span { display: block; line-height: 1.5; font-size: 0.9em; }
+#sidebar .sidebar-brand .logo strong {
+  display: block;
+  font-family: 'Cairo', 'Roboto Slab', serif;
+  font-size: 1.15em;
+  color: #3d4449;
+}
+#sidebar .sidebar-brand .logo span span { color: #9fa3a6; }
+
+/* ==========================================================================
+   4) عارض شرائح الأعمال (مكوّن ليس في القالب)
+      مرسوم بحدود القالب وألوانه: إطار رمادي فاتح ونقاط بلون القالب المميّز.
+   ========================================================================== */
+.showcase { display: block; position: relative; }
+
+.showcase__stage {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 11;
+  background: #f5f6f7;
+  border: solid 1px rgba(210, 215, 217, 0.75);
+}
+
+.showcase .slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  pointer-events: none;
+}
+.showcase .slide.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+.showcase .slide.no-anim   { transition: none !important; }
+
+.showcase .slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.showcase .slide figcaption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 0.9em 1.2em;
+  background: rgba(255, 255, 255, 0.94);
+  border-top: solid 1px rgba(210, 215, 217, 0.75);
+  color: #3d4449;
+  font-family: 'Cairo', 'Roboto Slab', serif;
+  font-size: 0.85em;
+}
+
+.showcase__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+.showcase__dot {
+  width: 0.7em;
+  height: 0.7em;
+  padding: 0;
+  border: solid 1px rgba(210, 215, 217, 0.75);
+  border-radius: 100%;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, width 0.2s ease;
+}
+.showcase__dot:hover { border-color: #f56a6a; }
+.showcase__dot.is-active {
+  width: 1.8em;
+  border-radius: 0.35em;
+  background: #f56a6a;
+  border-color: #f56a6a;
+}
+.showcase__dot:focus-visible { outline: solid 2px #f56a6a; outline-offset: 2px; }
+
+/* ==========================================================================
+   5) الأرقام السريعة في الواجهة الرئيسية
+   ========================================================================== */
+#banner .stats { margin-top: 2em; }
+#banner .stats strong {
+  display: block;
+  font-family: 'Cairo', 'Roboto Slab', serif;
+  font-size: 1.75em;
+  line-height: 1.2;
+  color: #f56a6a;
+}
+#banner .stats span { color: #9fa3a6; font-size: 0.85em; }
+
+/* ==========================================================================
+   6) شريط الثقة وبطاقات المراحل والباقات
+      كلها صناديق .box من القالب — نضيف فقط ما لا يملكه القالب.
+   ========================================================================== */
+.trustbar .col-4,
+.trustbar .col-6-medium,
+.trustbar .col-12-small { color: #7f888f; }
+.trustbar .icon { color: #f56a6a; margin-left: 0.5em; }
+
+.steps .box, .plans .box { height: 100%; position: relative; }
+
+.step__num {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  text-align: center;
+  border-radius: 100%;
+  background: #f56a6a;
+  color: #ffffff;
+  font-family: 'Cairo', 'Roboto Slab', serif;
+  font-weight: 700;
+  margin-bottom: 0.75em;
+}
+
+.plan__price strong { color: #f56a6a; font-size: 1.15em; }
+.plan__note { color: #9fa3a6; font-size: 0.85em; }
+
+.plan--featured { border-color: #f56a6a; }
+.plan__ribbon {
+  position: absolute;
+  top: -0.9em;
+  inset-inline-start: 1.5em;
+  background: #f56a6a;
+  color: #ffffff;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0;
+  padding: 0.4em 1em;
+  border-radius: 0.35em;
+}
+
+.cta-band { text-align: center; }
+.cta-band .actions { justify-content: center; display: flex; }
+
+/* رمز QR داخل قائمة التواصل */
+.qr-card { display: block; max-width: 120px; margin-top: 0.75em; }
+
+/* ==========================================================================
+   7) الأسئلة الشائعة (مكوّن ليس في القالب)
+   ========================================================================== */
+.faq { border-top: solid 1px rgba(210, 215, 217, 0.75); }
+.faq-item { border-bottom: solid 1px rgba(210, 215, 217, 0.75); }
+
+.faq-q {
+  display: block;
+  width: 100%;
+  text-align: right;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 1.25em 2.5em 1.25em 0;
+  margin: 0;
+  cursor: pointer;
+  position: relative;
+  /* القالب يمنع التفاف نص الأزرار (white-space: nowrap) لأن أزراره كلمة أو
+     كلمتان. أسئلتنا جُمل كاملة، فبدون هذا السطر تخرج عن حافة الشاشة على
+     الجوال وتُنشئ تمريرًا أفقيًا. */
+  white-space: normal;
+  font-family: 'Cairo', 'Roboto Slab', serif;
+  font-size: 1em;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  height: auto;
+  line-height: 1.6;
+  transition: color 0.2s ease-in-out;
+  /* القالب يفرض لون الأزرار الأحمر بـ !important، فنحتاج مثله هنا
+     حتى يظهر السؤال بلون العناوين لا بلون الأزرار */
+  color: #3d4449 !important;
+}
+.faq-q:hover,
+.faq-item.is-open .faq-q { color: #f56a6a !important; background: none; }
+
+/* السهم — نستخدم نفس أيقونة القالب ونفس آلية دورانها */
+.faq-q:before {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  font-style: normal;
+  content: '\f078';
+  position: absolute;
+  right: 0;
+  top: 1.4em;
+  color: #9fa3a6;
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.faq-q:hover:before { color: #f56a6a; }
+.faq-item.is-open .faq-q:before { transform: rotate(-180deg); color: #f56a6a; }
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.faq-a p { padding-bottom: 1.25em; margin: 0; }
+
+/* ==========================================================================
+   8) النموذج: تسميات الحقول ورسائل الخطأ (ليست في القالب)
+   ========================================================================== */
+.field .req { color: #f56a6a; }
+.field .error-msg { display: none; color: #f56a6a; font-size: 0.8em; }
+.field.has-error input,
+.field.has-error select,
+.field.has-error textarea { border-color: #f56a6a; box-shadow: 0 0 0 1px #f56a6a; }
+.field.has-error .error-msg { display: block; }
+
+.form-note { color: #9fa3a6; font-size: 0.85em; }
+
+.form-success {
+  display: none;
+  border: solid 1px #f56a6a;
+  border-radius: 0.35em;
+  padding: 1em 1.25em;
+  color: #3d4449;
+  margin-top: 1em;
+}
+.form-success.is-shown { display: block; }
+
+/* ==========================================================================
+   9) الأزرار العائمة (واتساب + العودة للأعلى)
+
+   القالب لا يملك أزرارًا عائمة. نرسمها بلونه المميّز.
+   المشكلة: العمود الجانبي يحتلّ يمين الشاشة، وهو مكان زر واتساب — فنزحزحه
+   بمقدار عرض العمود، ويعود إلى الحافة حين يطوي الزائر العمود.
+   ========================================================================== */
+.whatsapp-float {
+  position: fixed;
+  bottom: 1.5em;
+  inset-inline-start: 1.5em;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  background: #f56a6a;
+  color: #ffffff !important;
+  border-bottom: 0;
+  border-radius: 0.35em;
+  padding: 0.75em 1.25em;
+  font-family: 'Cairo', 'Roboto Slab', serif;
+  font-size: 0.8em;
+  font-weight: 700;
+  box-shadow: 0 0.5em 1.5em 0 rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease-in-out, inset-inline-start 0.5s ease;
+}
+.whatsapp-float:hover { background: #f67878; }
+
+.to-top {
+  position: fixed;
+  bottom: 1.5em;
+  inset-inline-end: 1.5em;
+  z-index: 90;
+  width: 3em;
+  height: 3em;
+  padding: 0;
+  border-radius: 0.35em;
+  background: #f56a6a;
+  color: #ffffff;
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.5em);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background-color 0.2s ease;
+}
+.to-top:hover { background: #f67878; }
+.to-top.is-shown { opacity: 1; visibility: visible; transform: none; }
+
+/* ==========================================================================
+   10) الشاشات المتوسطة والصغيرة
+   ========================================================================== */
+
+/* عند هذا الحد يضيّق القالب العمود الجانبي إلى 24em */
+@media screen and (max-width: 1680px) {
+  #sidebar.inactive { margin-right: -24em; }
+  #sidebar .toggle  { left: auto; right: 24em; }
+  #sidebar > .inner > .alt { margin-right: -1.66667em; }
+  #sidebar .sidebar-brand { padding: 1.66667em; }
+}
+
+/* من 1281 بكسل فأعلى يكون العمود الجانبي ثابتًا بجانب المحتوى،
+   فنزحزح زر واتساب حتى لا يختفي خلفه */
+@media screen and (min-width: 1281px) {
+  .whatsapp-float { inset-inline-start: 372px; }
+  body:has(#sidebar.inactive) .whatsapp-float { inset-inline-start: 1.5em; }
+}
+@media screen and (min-width: 1681px) {
+  .whatsapp-float { inset-inline-start: 400px; }
+  body:has(#sidebar.inactive) .whatsapp-float { inset-inline-start: 1.5em; }
+}
+
+/* دون 1281 بكسل يصير العمود عائمًا فوق الصفحة ويغطّي كل شيء عند فتحه،
+   فنُخفي الزرّين العائمين ما دام مفتوحًا */
+@media screen and (max-width: 1280px) {
+  #sidebar {
+    left: auto;
+    right: 0;
+    box-shadow: -0.25em 0 5em 0 rgba(0, 0, 0, 0.175);
+  }
+  #sidebar.inactive { box-shadow: none; }
+  #sidebar > .inner { left: auto; right: 0; }
+
+  body:has(#sidebar:not(.inactive)) .whatsapp-float,
+  body:has(#sidebar:not(.inactive)) .to-top {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* الجوال: زر القائمة يجلس في أعلى يمين الشاشة — وهو مكان الشعار نفسه.
+   القالب ينقل أيقونات الترويسة إلى أعلى اليمين أيضًا، فننقلها لليسار. */
+@media screen and (max-width: 736px) {
+  #sidebar .toggle:before {
+    margin-left: 0;
+    margin-right: -0.0625em;
+  }
+  #sidebar .toggle:after {
+    left: auto;
+    right: 1em;
+  }
+  #header .icons {
+    right: auto;
+    left: -0.5em;
+    text-align: left;
+  }
+  #sidebar .sidebar-brand { padding: 1.66667em; }
+}
+
+/* ==========================================================================
+   11) توافق أندرويد وآيفون
+
+   كل ما في هذا القسم يعالج سلوكًا خاصًا بالهواتف، ولا يغيّر شكل الموقع
+   على الحاسوب إطلاقًا.
+   ========================================================================== */
+
+/* --- 1) حجم الخط على الجوال ---
+   القالب ينزل بالخط إلى 10pt (13.3 بكسل) تحت 1280، وإلى 9pt (12 بكسل) تحت 360.
+   هذا مقبول للإنجليزية، لكنه صغير جدًا للعربية: حروفها متصلة وفيها تشكيل
+   ونقاط، فتحتاج حجمًا أكبر لتُقرأ بوضوح. نرفعه بمقدار محسوب فقط.
+
+   ملاحظة: القالب يضبط الحجم على body لا على html، فنخاطب العناصر نفسها. */
+@media screen and (max-width: 1280px) {
+  body, input, select, textarea { font-size: 11.5pt; }
+}
+@media screen and (max-width: 360px) {
+  body, input, select, textarea { font-size: 11pt; }
+}
+
+/* منع آيفون من تضخيم النص تلقائيًا عند تدوير الشاشة أفقيًا */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* --- 2) منع آيفون من تكبير الصفحة عند الكتابة ---
+   سفاري يُكبّر الصفحة تلقائيًا إذا كان خط الحقل أصغر من 16 بكسل، فيضطر
+   الزائر لتصغيرها يدويًا بعد كل حقل. تثبيت 16 بكسل يمنع ذلك نهائيًا. */
+@media screen and (max-width: 980px) {
+  input[type="text"], input[type="tel"], input[type="email"],
+  input[type="password"], input[type="search"], select, textarea {
+    font-size: 16px;
+  }
+}
+
+/* --- 3) اللمس: إزالة الوميض الأزرق وتأخير 300 ملّي ثانية --- */
+a, button, input[type="submit"], input[type="reset"], input[type="button"],
+.button, .showcase__dot, .faq-q, #menu .opener, #sidebar .toggle {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* بديل مرئي للضغط، لأن :hover لا وجود له على شاشة اللمس */
+@media (hover: none) {
+  .button:active, input[type="submit"]:active { opacity: 0.75; }
+  .box:active { border-color: #f56a6a; }
+  #menu ul a:active, ul.contact li a:active,
+  .faq-q:active, .mini-posts article .image:active { opacity: 0.65; }
+}
+
+/* --- 4) أهداف اللمس: 44 بكسل هو الحد الأدنى الذي يوصي به آبل وجوجل ---
+   العناصر أدناه كانت أصغر من ذلك، فيصعب إصابتها بالإصبع. نوسّعها دون
+   تغيير شكلها المرئي حيثما أمكن. */
+@media (hover: none), screen and (max-width: 980px) {
+
+  /* أيقونات التواصل في الترويسة */
+  #header .icons li a.icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* الأزرار */
+  .button, input[type="submit"], input[type="reset"], input[type="button"] {
+    min-height: 44px;
+    line-height: 44px;
+  }
+  .button.big, input[type="submit"].big { min-height: 48px; line-height: 48px; }
+
+  /* روابط القائمة الجانبية */
+  #menu ul a, #menu ul span.opener {
+    padding-top: 0.85em;
+    padding-bottom: 0.85em;
+    min-height: 44px;
+  }
+
+  /* روابط قائمة التواصل */
+  ul.contact li a {
+    display: inline-block;
+    min-height: 44px;
+    line-height: 44px;
+  }
+
+  /* شعار الترويسة.
+     ملاحظة: لا نستخدم inline-flex هنا — فهو يحوّل كل كلمة إلى عنصر مرن
+     مستقل ويبتلع المسافة بينها، فيلتصق «الأصيل» بـ«للبرمجيات». */
+  #header .logo {
+    display: inline-block;
+    padding-top: 0.55em;
+    padding-bottom: 0.55em;
+  }
+
+  /* زر العودة للأعلى وزر واتساب */
+  .to-top { width: 48px; height: 48px; }
+  .whatsapp-float { min-width: 48px; min-height: 48px; justify-content: center; }
+
+  /* نقاط عارض الشرائح.
+     المحاولة الأولى كانت توسيع منطقة اللمس بطبقة خفية حول كل نقطة، لكن
+     المناطق تداخلت فصارت النقطة تسرق لمسة جارتها. الحل: نجعل الزر نفسه
+     مربعًا شفافًا 44×44 ونرسم النقطة المرئية داخله، فتتجاور المناطق
+     بلا تداخل ويبقى الشكل كما هو. */
+  .showcase__dots { gap: 0; }
+  .showcase__dot {
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    /* القالب يرسم إطار الأزرار بظلّ داخلي، ولولا إلغاؤه لظهر مربّع
+       رمادي حول كل نقطة بدل أن تبقى النقطة وحدها مرئية */
+    box-shadow: none;
+    display: grid;
+    place-items: center;
+  }
+  .showcase__dot::before {
+    content: '';
+    width: 0.7em;
+    height: 0.7em;
+    border: solid 1px rgba(210, 215, 217, 0.75);
+    border-radius: 100%;
+    background: #ffffff;
+    transition: background-color 0.2s ease, border-color 0.2s ease, width 0.2s ease;
+  }
+  .showcase__dot:hover::before { border-color: #f56a6a; }
+  .showcase__dot.is-active { width: 44px; background: none; border: 0; }
+  .showcase__dot.is-active::before {
+    width: 1.8em;
+    border-radius: 0.35em;
+    background: #f56a6a;
+    border-color: #f56a6a;
+  }
+}
+
+/* --- 5) المساحات المحجوزة في آيفون (النتوء وشريط الصفحة الرئيسية) ---
+   بدون هذا يختفي زر واتساب جزئيًا خلف شريط الإيماءات في الأجهزة الحديثة. */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .whatsapp-float, .to-top {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  #sidebar > .inner {
+    padding-bottom: calc(2.22222em + env(safe-area-inset-bottom));
+  }
+  @media screen and (max-width: 1280px) {
+    #sidebar .toggle { margin-top: env(safe-area-inset-top); }
+  }
+}
+
+/* --- 6) ارتفاع الشاشة الحقيقي في آيفون ---
+   الوحدة vh في سفاري تحسب الشاشة وكأن شريط المتصفح مخفي، فيظهر فراغ أو
+   يُقصّ المحتوى. الوحدة dvh تعطي الارتفاع المرئي فعلًا، ونُبقي vh قبلها
+   كبديل للمتصفحات القديمة التي لا تعرف dvh. */
+#wrapper { min-height: 100vh; }
+#wrapper { min-height: 100dvh; }
+
+/* --- 7) الصور لا تتمدد خارج حاويتها مهما كان مقاس الشاشة --- */
+img, svg { max-width: 100%; height: auto; }
+.slide img { height: 100%; }
+
+/* --- 8) التفاف صفوف الأزرار على الشاشات الضيقة ---
+   القالب يجعل ul.actions صفًّا مرنًا بلا التفاف، لأن أمثلته تحتوي زرًّا
+   واحدًا. صفحتنا فيها زرّان متجاوران، وعلى شاشة ضيقة لا يتّسعان فيخرجان
+   عن حافة الشاشة ويُنشئان تمريرًا أفقيًا. نسمح لهما بالنزول سطرًا. */
+@media screen and (max-width: 736px) {
+  ul.actions:not(.stacked) {
+    flex-wrap: wrap;
+    row-gap: 0.8em;
+  }
+}
+
+/* وعلى الشاشات الأضيق نجعل كل زر بعرض السطر كاملًا — أوضح وأسهل للإصبع */
+@media screen and (max-width: 480px) {
+  #banner ul.actions li,
+  .cta-band ul.actions li,
+  #services > ul.actions li {
+    width: 100%;
+    padding-right: 0;
+  }
+  #banner ul.actions li > .button,
+  .cta-band ul.actions li > .button,
+  #services > ul.actions li > .button {
+    width: 100%;
+  }
+  ul.actions:not(.stacked) { margin-right: 0; }
+}
+
+/* --- 8) الجوال: زر واتساب يكتفي بالأيقونة لتوفير المساحة --- */
+@media screen and (max-width: 480px) {
+  .whatsapp-float {
+    padding: 0.9em;
+    bottom: 1em;
+    inset-inline-start: 1em;
+  }
+  .whatsapp-float span:not(.icon) { display: none; }
+  .to-top { bottom: 1em; inset-inline-end: 1em; }
+}
+
+/* --- 9) احترام تفضيل تقليل الحركة (إعداد في أندرويد وآيفون) --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --- 10) عند الطباعة أو الحفظ كـ PDF --- */
+@media print {
+  #sidebar, .whatsapp-float, .to-top, #showcase { display: none !important; }
+  #main > .inner { padding: 0; max-width: none; }
+  body { color: #000; }
+  a { text-decoration: underline; }
+}
