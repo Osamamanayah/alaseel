@@ -22,6 +22,36 @@ const CONFIG = {
   whatsappGreeting: 'مرحبًا، أرغب في الاستفسار عن خدمات الأصيل للبرمجيات 👋'
 };
 
+/* ==========================================================================
+   أرقام الهواتف الأردنية
+
+   شبكات الجوال في الأردن تبدأ بـ 07 يليها 7 أو 8 أو 9، ثم سبعة أرقام.
+   أي أن الرقم المحلي عشر خانات:  07X XXX XXXX
+
+   نقبل من الزائر كل الصيغ المتداولة ونوحّدها:
+       0791234567        محلي
+       791234567         بلا الصفر
+       +962791234567     دولي
+       00962791234567    دولي بصيغة الاتصال
+       079-123-4567      بفواصل أو مسافات
+   ========================================================================== */
+
+/* ترجع الرقم بالصيغة الدولية بلا علامة + ، أو null إذا لم يكن أردنيًا صحيحًا */
+function normalizeJordanMobile(raw) {
+  let d = String(raw).replace(/\D/g, '');        // نُبقي الأرقام فقط
+  if (d.startsWith('00962'))    d = d.slice(5);
+  else if (d.startsWith('962')) d = d.slice(3);
+  else if (d.startsWith('0'))   d = d.slice(1);
+  // ما بقي يجب أن يكون تسع خانات تبدأ بـ 7 ثم 7 أو 8 أو 9
+  return /^7[789]\d{7}$/.test(d) ? '962' + d : null;
+}
+
+/* تعرض الرقم بشكل مقروء في رسالة واتساب: +962 79 123 4567 */
+function formatJordanMobile(intl) {
+  return '+' + intl.slice(0, 3) + ' ' + intl.slice(3, 5) + ' ' +
+         intl.slice(5, 8) + ' ' + intl.slice(8);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ------------------------------------------------------------------
@@ -233,11 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const budget  = form.budget || null;
       const details = form.details;
 
-      // قواعد بسيطة وواضحة للتحقق
-      const digits = phone.value.replace(/\D/g, '');
+      // قواعد بسيطة وواضحة للتحقق.
+      // الهاتف: نقبله فقط إذا كان رقم جوال أردنيًا صحيحًا (07 ثم 7/8/9).
+      const phoneIntl = normalizeJordanMobile(phone.value);
       const checks = [
         setError(name,    name.value.trim().length < 2),
-        setError(phone,   digits.length < 9),
+        setError(phone,   phoneIntl === null),
         setError(email,   email.value.trim() !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())),
         setError(service, service.value === ''),
         setError(details, details.value.trim().length < 10)
@@ -253,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         '*طلب خدمة جديد من الموقع*',
         '',
         'الاسم: ' + name.value.trim(),
-        'الهاتف: ' + phone.value.trim(),
+        'الهاتف: ' + formatJordanMobile(phoneIntl),
         email.value.trim() ? 'البريد: ' + email.value.trim() : null,
         'الخدمة المطلوبة: ' + service.value,
         budget && budget.value ? 'الميزانية: ' + budget.value : null,

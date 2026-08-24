@@ -530,8 +530,9 @@
 
                 <div class="col-6 col-12-xsmall field">
                   <label for="phone">رقم الهاتف <span class="req">*</span></label>
-                  <input type="tel" id="phone" name="phone" placeholder="05xxxxxxxx" required>
-                  <span class="error-msg">الرجاء كتابة رقم هاتف صحيح.</span>
+                  <input type="tel" id="phone" name="phone" placeholder="07XXXXXXXX"
+                         inputmode="tel" autocomplete="tel" dir="ltr" maxlength="17" required>
+                  <span class="error-msg">الرجاء كتابة رقم أردني يبدأ بـ 07 — مثال: 0791234567</span>
                 </div>
 
                 <div class="col-6 col-12-xsmall field">
@@ -586,7 +587,8 @@
               <li class="icon solid fa-phone"><a href="tel:+962772499064" dir="ltr">+962 77 249 9064</a></li>
               <li class="icon solid fa-envelope"><a href="mailto:osamamaxman@gmail.com" dir="ltr">osamamaxman@gmail.com</a></li>
               <li class="icon solid fa-home">المملكة الأردنية الهاشمية</li>
-              <li class="icon solid fa-clock">الأحد – الخميس<br>9 صباحًا – 6 مساءً</li>
+              <li class="icon solid fa-clock">الأحد – الخميس<br>
+                9 صباحًا – 6 مساءً</li>
               <li class="icon solid fa-qrcode">
                 افتح الموقع على جوالك
                 <span class="image fit qr-card">
@@ -620,7 +622,7 @@
       <!-- الشعار -->
       <section id="search" class="alt sidebar-brand">
         <a href="#banner" class="logo" aria-label="الأصيل للبرمجيات">
-          <img src="assets/brand/alaseel-silver-logo-v4-small.png" alt="">
+          <span class="brandmark" aria-hidden="true"></span>
           <span>
             <strong>الأصيل للبرمجيات</strong>
             حلول رقمية تصنع النجاح

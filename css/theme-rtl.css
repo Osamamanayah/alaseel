@@ -192,8 +192,39 @@ table th, table td { text-align: right; }
   gap: 0.9em;
   color: #3d4449;
 }
-/* الشعار خط عربي منسوخ، فيحتاج مساحة أكبر من علامة مجرّدة ليُقرأ */
-#sidebar .sidebar-brand .logo img { width: 82px; height: auto; flex: none; }
+/* ------------------------------------------------------------------
+   علامة الشعار
+
+   ملف الشعار خطّ عربي فضي بتدرّج معدني صُمّم لخلفية غامقة، وعلى خلفية
+   القالب الفاتحة يبدو باهتًا مهما كبر حجمه. فبدل عرض بكسلاته كما هي،
+   نستعمل شكله (قناة الشفافية) قالبًا ونصبّ فيه لون الموقع المميّز —
+   فيصير جزءًا من لوحة الألوان بدل أن يكون جسمًا غريبًا عنها.
+
+   لهذا استُبدل <img> بـ <span>: لا يمكن صبغ صورة لأن بكسلاتها تُرسم
+   فوق أي لون خلفية نضعه تحتها. والاسم مكتوب نصًّا بجانب العلامة،
+   فهي زخرفية ولا يفقد قارئ الشاشة شيئًا (aria-hidden).
+   ------------------------------------------------------------------ */
+#sidebar .sidebar-brand .logo .brandmark {
+  flex: none;
+  width: 112px;
+  height: 116px;                       /* نسبة الملف الأصلي 300×312 */
+  background-color: #f56a6a;
+  -webkit-mask: url('../assets/brand/alaseel-silver-logo-v4-small.png') center / contain no-repeat;
+          mask: url('../assets/brand/alaseel-silver-logo-v4-small.png') center / contain no-repeat;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* عند مرور الفأرة يتحوّل إلى رمادي العناوين — أثر خفيف يوحي بأنه رابط.
+   نحصره في الأجهزة التي فيها فأرة حقيقية: على شاشة اللمس يعلق التأثير
+   بعد الضغط فيبقى الشعار رماديًا بلا سبب. */
+@media (hover: hover) and (pointer: fine) {
+  #sidebar .sidebar-brand .logo:hover .brandmark { background-color: #3d4449; }
+}
+
+/* متصفح لا يدعم mask: نُظهر العلامة بلون الموقع كمربّع دائري بدل اختفائها */
+@supports not ((-webkit-mask: none) or (mask: none)) {
+  #sidebar .sidebar-brand .logo .brandmark { display: none; }
+}
 #sidebar .sidebar-brand .logo span { display: block; line-height: 1.5; font-size: 0.9em; }
 #sidebar .sidebar-brand .logo strong {
   display: block;
@@ -530,6 +561,8 @@ table th, table td { text-align: right; }
   #sidebar .toggle  { left: auto; right: 24em; }
   #sidebar > .inner > .alt { margin-right: -1.66667em; }
   #sidebar .sidebar-brand { padding: 1.66667em; }
+  /* العمود يضيق إلى 24em هنا، فنصغّر العلامة قليلًا لتبقى النسبة متّزنة */
+  #sidebar .sidebar-brand .logo .brandmark { width: 100px; height: 104px; }
 }
 
 /* من 1281 بكسل فأعلى يكون العمود الجانبي ثابتًا بجانب المحتوى،
@@ -578,6 +611,7 @@ table th, table td { text-align: right; }
     text-align: left;
   }
   #sidebar .sidebar-brand { padding: 1.66667em; }
+  #sidebar .sidebar-brand .logo .brandmark { width: 88px; height: 92px; }
 }
 
 /* ==========================================================================
