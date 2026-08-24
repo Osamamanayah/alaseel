@@ -174,6 +174,16 @@ table th, table td { text-align: right; }
 /* ==========================================================================
    3) الشعار في العمود الجانبي وفي الترويسة
    ========================================================================== */
+/* سطر الإسناد لقالب Editorial.
+   رخصة القالب هي Creative Commons Attribution 3.0، والإسناد فيها شرط
+   إلزامي لا يجوز حذفه. لذلك نُبقيه ونكتفي بتخفيته حتى لا يزاحم المحتوى. */
+#footer .copyright .attribution {
+  display: block;
+  margin-top: 0.7em;
+  font-size: 0.85em;
+  opacity: 0.5;
+}
+
 #sidebar .sidebar-brand { padding: 2.22222em; }
 #sidebar .sidebar-brand .logo {
   border-bottom: 0;
@@ -214,11 +224,39 @@ table th, table td { text-align: right; }
   margin: 0;
   opacity: 0;
   transform: translateX(100%);
-  transition: transform 0.6s ease, opacity 0.6s ease;
+  /* منحنى تسارع مدروس: تبدأ الشريحة بسرعة ثم تهدأ عند الوصول، بدل
+     الحركة الميكانيكية المتساوية. وهذا ما يعطي الإحساس الاحترافي. */
+  transition: transform 0.85s cubic-bezier(0.65, 0.05, 0.12, 1),
+              opacity   0.55s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 .showcase .slide.is-active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+/* الشريحة القادمة تُوضع خارج الإطار بلا حركة مرئية قبل انطلاقها،
+   وهذا الصنف يأتي من ملف js/site.js في تلك اللحظة تحديدًا. */
 .showcase .slide.no-anim   { transition: none !important; }
+
+/* زحف بطيء جدًا للصورة أثناء عرضها (تأثير كِن بيرنز).
+   ينتقل الانتباه داخل الصورة فلا تبدو ساكنة، والحركة أبطأ من أن
+   تُلاحَظ مباشرة. التحويل مقصور على الشريحة النشطة، فتعود غيرها
+   إلى وضعها فورًا بلا حركة رجوع مزعجة. */
+.showcase .slide img { transform: scale(1); transition: none; }
+.showcase .slide.is-active img {
+  transform: scale(1.055);
+  transition: transform 6s ease-out;
+}
+
+/* الوصف يصعد من أسفل الإطار بعد استقرار الشريحة بقليل */
+.showcase .slide figcaption {
+  transform: translateY(105%);
+  opacity: 0;
+  transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.18s,
+              opacity   0.45s ease 0.18s;
+}
+.showcase .slide.is-active figcaption { transform: translateY(0); opacity: 1; }
+.showcase .slide.no-anim figcaption { transition: none !important; }
 
 .showcase .slide img {
   width: 100%;
@@ -454,6 +492,32 @@ table th, table td { text-align: right; }
   transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background-color 0.2s ease;
 }
 .to-top:hover { background: #f67878; }
+
+/* ⚠️ القالب يفرض على كل عنصر <button> لونًا أحمر بـ !important:
+     input[type=submit], input[type=reset], input[type=button], button, .button
+       { color: #f56a6a !important; }
+   وزر العودة للأعلى خلفيته حمراء أيضًا، فيصير السهم أحمر على أحمر ويختفي.
+   لا سبيل لتجاوز !important إلا بمثله، ونطبّقه على العنصر وعلى الأيقونة
+   وعلى المحرف الذي يرسمه ::before معًا لأن اللون لا يورَّث عبرها كلها. */
+.to-top,
+.to-top .icon,
+.to-top .icon::before { color: #ffffff !important; }
+
+/* السهم كان 12 بكسل داخل زر 48 بكسل — صغير جدًا. نكبّره ليملأ الزر بوضوح */
+.to-top .icon::before { font-size: 1.35rem; line-height: 1; }
+.to-top .icon { display: grid; place-items: center; width: 100%; height: 100%; }
+
+/* ظل خفيف يفصل الزر عن خلفية الصفحة البيضاء */
+.to-top { box-shadow: 0 0.35em 1em rgba(0, 0, 0, 0.18); }
+
+/* نفس العلّة تصيب زر واتساب عند مرور الفأرة: قاعدة a:hover في القالب
+   تفرض اللون الأحمر بـ !important وهي أكثر تحديدًا من قاعدتنا. */
+.whatsapp-float:hover,
+.whatsapp-float:hover .icon,
+.whatsapp-float:hover .icon::before,
+.whatsapp-float .icon,
+.whatsapp-float .icon::before { color: #ffffff !important; }
+.whatsapp-float .icon::before { font-size: 1.15rem; }
 .to-top.is-shown { opacity: 1; visibility: visible; transform: none; }
 
 /* ==========================================================================
