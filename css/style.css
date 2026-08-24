@@ -525,6 +525,21 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 .social svg { width: 20px; height: 20px; }
 .social:hover { background: var(--grad-btn); color: #fff; border-color: transparent; transform: translateY(-4px); box-shadow: var(--shadow-blue); }
 
+/* --- بطاقة الكيو آر كود في قسم التواصل --- */
+.qr-card { align-items: center; gap: 18px; }
+.qr-card__code {
+  flex: none; width: 104px; height: 104px; border-radius: 14px;
+  background: #fff; padding: 8px;            /* خلفية بيضاء إجبارية: الكود لا يُقرأ على الداكن */
+  display: grid; place-items: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,.4);
+}
+.qr-card__code img { width: 100%; height: 100%; display: block; }
+.qr-card span span { line-height: 1.7; }
+
+@media (max-width: 480px) {
+  .qr-card { flex-direction: column; text-align: center; }
+}
+
 /* النموذج */
 .form-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: clamp(26px, 3.5vw, 38px); box-shadow: var(--shadow-md); }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
